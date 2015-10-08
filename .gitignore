@@ -30,3 +30,8 @@
 
 # Debug files
 *.dSYM/
+
+#All the folders
+/bin
+/obj
+/Release
