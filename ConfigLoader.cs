@@ -11,7 +11,9 @@ namespace EngineerLevelFixer
     {
         protected static string SaveLocation = "GameData/EngineerLevelFixer/Settings.cfg"; //Where the settings file is saved
         protected static bool hasLoaded = false;
-        protected static int engineerLevel = 1;
+        //Default values for variables that will be returned
+        protected static int wheelLevel = 1;
+        protected static int gearLevel = 1;
         protected static bool doDebug = false;
 
         public static void saveConfigFile()
@@ -20,7 +22,8 @@ namespace EngineerLevelFixer
 
             ConfigNode file = new ConfigNode();
             ConfigNode settings = file.AddNode("SETTINGS");
-            settings.AddValue("engineerLevel", engineerLevel);
+            settings.AddValue("wheelLevel", wheelLevel);
+            settings.AddValue("gearLevel", gearLevel);
             settings.AddValue("doDebug", doDebug);
 
             file.Save(SaveLocation);
@@ -36,7 +39,8 @@ namespace EngineerLevelFixer
             { 
                 ConfigNode settings = ConfigNode.Load(SaveLocation); 
                 settings = settings.GetNode("SETTINGS");
-                engineerLevel = int.Parse(settings.GetValue("engineerLevel"));
+                wheelLevel = int.Parse(settings.GetValue("wheelLevel"));
+                gearLevel = int.Parse(settings.GetValue("gearLevel"));
                 doDebug = bool.Parse(settings.GetValue("doDebug"));
 
                 DebugHelper.Info("Config Exists Already");
@@ -48,13 +52,19 @@ namespace EngineerLevelFixer
             hasLoaded = true; //Finish off so we don't do this again
         }
 
-        public static int getEngineerLevel()
+        public static int getWheelLevel()
         {
             DebugHelper.Debug("Getting Engineer Level");
             ConfigLoader.loadConfigFile(); //Load the config if not already loaded
 
-            DebugHelper.Info(String.Concat("Engineer Level Required: ", engineerLevel.ToString()));
-            return engineerLevel;
+            DebugHelper.Info(String.Concat("Engineer Level Required for Wheels: ", wheelLevel.ToString()));
+            return wheelLevel;
+        }
+        public static int getGearLevel()
+        {
+            ConfigLoader.loadConfigFile();
+            DebugHelper.Info(String.Concat("Engineer Level Required for Gear: ", wheelLevel.ToString()));
+            return wheelLevel;
         }
         public static bool getDebug()
         {

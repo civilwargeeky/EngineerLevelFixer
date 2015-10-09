@@ -7,6 +7,11 @@ using UnityEngine;
 
 namespace EngineerLevelFixer
 {
+    internal class Properties
+    {
+        public static ScreenMessageStyle textStyle = ScreenMessageStyle.UPPER_CENTER;
+    }
+
     [KSPAddon(KSPAddon.Startup.SpaceCentre, true)] //?
     public class ButtonClass : MonoBehaviour //?
     {
@@ -15,6 +20,7 @@ namespace EngineerLevelFixer
         private bool showGUI = false;
 
         private Rect test = new Rect(580f, 40f, 1f, 1f);
+
 
         public void Start()
         {
@@ -55,8 +61,6 @@ namespace EngineerLevelFixer
 
     public class ModuleFixedWheel : ModuleWheel
     {
-        static ScreenMessageStyle textStyle = ScreenMessageStyle.UPPER_CENTER;
-
         public override void OnStart(StartState state)
         {
             this.Events["RepairWheel"].guiName = "Repair Wheel"; //Must do this here because KSPEvent is not overridden in declaration
@@ -68,7 +72,7 @@ namespace EngineerLevelFixer
         {
             DebugHelper.Debug("My RepairWheel function has been called");
             int engineerLevel = FlightGlobals.ActiveVessel.VesselValues.RepairSkill.value;
-            int requiredEngineerLevel = ConfigLoader.getEngineerLevel();
+            int requiredEngineerLevel = ConfigLoader.getWheelLevel();
 
             DebugHelper.Debug(String.Concat("Engineer Level: ", engineerLevel.ToString()));
             DebugHelper.Debug(String.Concat("Science Skill: ", FlightGlobals.ActiveVessel.VesselValues.ScienceSkill.value.ToString()));
@@ -81,9 +85,40 @@ namespace EngineerLevelFixer
                 this.Events["RepairWheel"].active = false;
             }
             else if (engineerLevel < 0) //For non-engineers. If not an engineer, engineer skill is -1
-                ScreenMessages.PostScreenMessage("You must repair wheels with Engineer Kerbals!", 2.0F, textStyle);
+                ScreenMessages.PostScreenMessage("You must repair wheels with Engineer Kerbals!", 2.0F, Properties.textStyle);
             else //This means that the kerbal is an engineer, but not high enough level
-                ScreenMessages.PostScreenMessage("Engineer Kerbal must be level " + requiredEngineerLevel + " to repair wheels \n Current Level: " + engineerLevel, 2.0F, textStyle);
+                ScreenMessages.PostScreenMessage("Engineer Kerbal must be level " + requiredEngineerLevel + " to repair wheels \n Current Level: " + engineerLevel, 2.0F, Properties.textStyle);
         }
+    }
+
+    public class ModuleFixedLeg: ModuleLandingLeg
+    {
+        /*public override void OnStart(StartState state)
+        {
+            this.Events["RepairLeg"].guiName = "Test Repair Leg";
+            base.OnStart(state);
+        }
+
+        public void RepairLeg()
+        {
+            DebugHelper.Warn("My Repair Leg Function has been called!");
+
+            int engineerLevel = FlightGlobals.ActiveVessel.VesselValues.RepairSkill.value;
+            int requiredEngineerLevel = ConfigLoader.getGearLevel();
+            if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX || engineerLevel >= requiredEngineerLevel) //We want it always to succeed in Sandbox, otherwise succeed if level is high enough
+            {
+                DebugHelper.Debug("Repair Succeeded");
+                //this.legState = ModuleLandingLeg.LegStates.DEPLOYED;
+                this.RepairLeg();
+                DebugHelper.Warn(this.legState);
+                this.Events["RepairWheel"].active = false;
+            }
+            else if (engineerLevel < 0) //For non-engineers. If not an engineer, engineer skill is -1
+                ScreenMessages.PostScreenMessage("You must repair landing legs with Engineer Kerbals!", 2.0F, Properties.textStyle);
+            else //This means that the kerbal is an engineer, but not high enough level
+                ScreenMessages.PostScreenMessage("Engineer Kerbal must be level " + requiredEngineerLevel + " to repair landing legs \n Current Level: " + engineerLevel, 2.0F, Properties.textStyle);
+
+        }
+        */
     }
 }
