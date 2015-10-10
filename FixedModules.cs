@@ -12,6 +12,7 @@ namespace EngineerLevelFixer
         public static ScreenMessageStyle textStyle = ScreenMessageStyle.UPPER_CENTER;
     }
 
+    /* //Trying to make a button so they can change behavior on the fly
     [KSPAddon(KSPAddon.Startup.SpaceCentre, true)] //?
     public class ButtonClass : MonoBehaviour //?
     {
@@ -58,16 +59,9 @@ namespace EngineerLevelFixer
             showGUI = !showGUI;
         }
     }
-
+    */
     public class ModuleFixedWheel : ModuleWheel
     {
-        public override void OnStart(StartState state)
-        {
-            this.Events["RepairWheel"].guiName = "Repair Wheel"; //Must do this here because KSPEvent is not overridden in declaration
-            this.Events["RepairWheel"].unfocusedRange = 5f;
-            base.OnStart(state);
-        }
-
         public void RepairWheel()
         {
             DebugHelper.Debug("My RepairWheel function has been called");
@@ -93,25 +87,61 @@ namespace EngineerLevelFixer
 
     public class ModuleFixedLeg: ModuleLandingLeg
     {
-        /*public override void OnStart(StartState state)
+
+        private KSPEvent GetCustomEventMethodInfo(string methodName) //Reflection magic from xEvilReeperx. TODO: Understand
         {
-            this.Events["RepairLeg"].guiName = "Test Repair Leg";
+            return (KSPEvent)GetType().GetMethod(methodName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                .GetCustomAttributes(typeof(KSPEvent), true).Single();
+        }
+
+        private BaseEvent CreateEvent(string originalMethod, string customMethodName) //More reflection magic
+        {
+            return new BaseEvent(Events, originalMethod, (BaseEventDelegate)Delegate.CreateDelegate(typeof(BaseEventDelegate), this, customMethodName), GetCustomEventMethodInfo(customMethodName));
+        }
+
+        private void myInitialize()
+        {
+            const string oldLock = "LockSuspension", //Variables because concise
+                         oldUnlock = "UnLockSuspension",
+                         myLock = "FixedLockSuspension",
+                         myUnlock = "FixedUnLockSuspension";
+
+            if (this.Events[oldLock] == null) //If we haven't yet initialized.
+            {
+                this.Events.Remove(Events[myLock]); //Remove duplicate events
+                this.Events.Remove(Events[myUnlock]);
+
+                this.Events.Add(CreateEvent(oldLock, myLock)); //Change method of existing events
+                this.Events.Add(CreateEvent(oldUnlock, myUnlock));
+            }
+            
+        }
+
+        public override void OnInitialize() //Because parts are initialized in editor and on load
+        {
+            myInitialize();
+ 	        base.OnInitialize();
+        }
+
+        public override void OnStart(PartModule.StartState state) //Required because parts are started on load
+        {
+            myInitialize();
             base.OnStart(state);
         }
 
+        [KSPEvent(guiName = "Repair Leg", guiActiveUnfocused = true, externalToEVAOnly = true, guiActive = false, unfocusedRange = 4f)]
         public void RepairLeg()
         {
-            DebugHelper.Warn("My Repair Leg Function has been called!");
+            DebugHelper.Debug("My Repair Leg Function has been called!");
 
             int engineerLevel = FlightGlobals.ActiveVessel.VesselValues.RepairSkill.value;
             int requiredEngineerLevel = ConfigLoader.getGearLevel();
             if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX || engineerLevel >= requiredEngineerLevel) //We want it always to succeed in Sandbox, otherwise succeed if level is high enough
             {
                 DebugHelper.Debug("Repair Succeeded");
-                //this.legState = ModuleLandingLeg.LegStates.DEPLOYED;
-                this.RepairLeg();
-                DebugHelper.Warn(this.legState);
-                this.Events["RepairWheel"].active = false;
+                this.legState = ModuleLandingLeg.LegStates.DEPLOYED;
+                SendMessage("DecompressSuspension", SendMessageOptions.RequireReceiver);
+                this.Events["RepairLeg"].active = false;
             }
             else if (engineerLevel < 0) //For non-engineers. If not an engineer, engineer skill is -1
                 ScreenMessages.PostScreenMessage("You must repair landing legs with Engineer Kerbals!", 2.0F, Properties.textStyle);
@@ -119,6 +149,18 @@ namespace EngineerLevelFixer
                 ScreenMessages.PostScreenMessage("Engineer Kerbal must be level " + requiredEngineerLevel + " to repair landing legs \n Current Level: " + engineerLevel, 2.0F, Properties.textStyle);
 
         }
-        */
+
+        //Function I have to implement to pass the load checks.
+        [KSPEvent(guiName = "Lock Suspension", guiActiveEditor = true, guiActiveUnfocused = true, externalToEVAOnly = true, guiActive = true, unfocusedRange = 4f)]
+        private void FixedLockSuspension()
+        {
+            SendMessage("LockSuspension", SendMessageOptions.RequireReceiver);
+        }
+
+        [KSPEvent(guiName = "Unlock Suspension", guiActiveEditor = true, guiActiveUnfocused = true, externalToEVAOnly = true, guiActive = true, unfocusedRange = 4f)]
+        private void FixedUnLockSuspension()
+        {
+            SendMessage("UnLockSuspension", SendMessageOptions.RequireReceiver);
+        }
     }
 }
