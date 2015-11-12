@@ -16,7 +16,12 @@ copyFile("\\MM_AddModuleToWheels.cfg", otherDir)
 tArgs = {...}
 print("Args[1]: "..(tArgs[1] or ""))
 if tArgs[1] == "build" then
-  versionFile = io.open("EngineerLevelFixer\\EngineerLevelFixer.version","r")
+  versionFile = io.open(baseDir.."\\EngineerLevelFixer.version","r")
+  if not versionFile then
+    print("Version File Not Read!")
+    io.read()
+    error("File not found")
+  end
   versionString = versionFile:read("*all")
   versionFile:close()
 
@@ -27,7 +32,9 @@ if tArgs[1] == "build" then
   print("Minor: "..versionMinor)
   print("Patch: "..versionPatch)
 
-  os.execute("7za.exe a EngineerLevelFixer_v"..versionMajor.."."..versionMinor.."."..versionPatch..".zip EngineerLevelFixer")
+  os.execute("cd Release")
+  os.execute("start /d Release 7za.exe a EngineerLevelFixer_v"..versionMajor.."."..versionMinor.."."..versionPatch..".zip EngineerLevelFixer")
+  os.execute("cd ..")
 else
 
   print("Running game with new files")
