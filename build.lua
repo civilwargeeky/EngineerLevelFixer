@@ -38,6 +38,6 @@ if tArgs[1] == "build" then
 else
 
   print("Running game with new files")
-  os.execute("start /d Q:\\Games\\Kerbal\\ModDev /wait Q:\\Games\\Kerbal\\ModDev\\KSP.exe")
+  os.execute("start /d Q:\\Games\\Kerbal\\ModDev /wait Q:\\Games\\Kerbal\\ModDev\\KSP_x64.exe")
 
 end

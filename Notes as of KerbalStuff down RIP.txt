@@ -1,0 +1,39 @@
+License: MIT
+
+KSP Version: 1.0.5
+
+Downloads: 13,876
+
+Author: civilwargeeky
+
+Mod Website: https://github.com/civilwargeeky/EngineerLevelFixer
+
+Followers: 26
+
+Version 0.3.1 for Kerbal Space Program 1.0.5
+
+Released on 2015-11-12
+
+Just a quick recompile to 1.0.5 to see how the process works. I didn't end up changing anything, but I figured it would be good to update
+
+Version 0.3.0 for Kerbal Space Program 1.0.4
+
+Released on 2015-10-10
+
+Upon realizing the hard way that landing legs can be broken just like wheels, I got back to coding...
+
+All landing legs are now replaced by a fixed landing leg that can be repaired at any level
+Changed Settings.cfg structure to accommodation different engineer levels
+Added simple support for upgrading old Settings files to new format.
+
+Version 0.2.0 for Kerbal Space Program 1.0.4
+
+Released on 2015-09-21
+
+Added text to inform user when they cannot repair a wheel and for what reason
+
+Version 0.1.0 for Kerbal Space Program 1.0.4
+
+Released on 2015-09-15
+
+No changelog provided
